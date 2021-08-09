@@ -3,7 +3,7 @@ import requests, threading, time, certstream # import stuff
 #Static variables
 headers = {'Authorization': 'Basic YWRtaW46Y2hhbmdlbWU=',} #for little shot api
 littleshot_server = "http://localhost:8888"  #location of littleshot server
-ls_max_threads = 1 #for scaling need to fix multi threading
+ls_max_threads = 2 #for scaling need to fix multi threading
 ls_sema = threading.Semaphore(value=ls_max_threads)
 ls_threads_list = list()
 file_write_lock = threading.Lock()

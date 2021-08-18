@@ -1,0 +1,6 @@
+rq
+pymongo
+minio
+flask
+gunicorn
+# pql

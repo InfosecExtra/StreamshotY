@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Index</h1>
+<h3>Recent Tasks</h3>
+<table style="width:100%" border=1>
+    {% for task in recenttasks %}
+    <tr>
+    <td>{{ task.url }}</td>
+    <td><a href = {{ url_for('results' ,taskid=task.taskid) }}>{{ task.taskid }}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

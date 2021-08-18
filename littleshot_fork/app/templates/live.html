@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<meta http-equiv="refresh" content="10" >
+<h1>Live View</h1>
+
+{% for task in recenttasks %}
+    <a href = {{ url_for('results' ,taskid=task.taskid) }}>
+    <img src="/shots/{{ task.taskid }}.png" width=30%>
+    </a>
+{% endfor %}
+
+
+{% endblock %}

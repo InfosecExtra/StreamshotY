@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Scan</h1>
+<form method="post">
+    <p>URL</p>
+    <input type="text" id="url" name="url" size="100"><br>
+    <br>
+    <p>Private scan:<input type="checkbox" name="private" > </p>
+    <input type="submit" value="Submit">
+</form>
+<p>Data for private (more like unlisted) scans requires taskid to be viewed. Scans will not show up in search results.</p>
+{% endblock %}

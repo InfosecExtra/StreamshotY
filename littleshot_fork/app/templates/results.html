@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Results</h1>
+
+<h3>taskid</h3>
+{{ taskinfo.taskid }}
+
+<h3>yara matches</h3>
+{{ taskinfo.yara_matches }}
+
+<h3>opendns</h3>
+{{ taskinfo.opendns }}
+
+<h3>private scan</h3>
+{{ taskinfo.private }}
+
+<h4>error: {{ taskinfo.error|default("False") }}</h4>
+
+<h3>url</h3>
+{{ taskinfo.url }}
+
+<h3>screenshot</h3>
+<img src="/shots/{{ taskinfo.taskid }}.png" width=50%>
+
+{% endblock %}

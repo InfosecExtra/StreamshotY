@@ -1,0 +1,104 @@
+version: "3.9"
+
+services:
+    #redis for task queueing 
+    redis:
+        image: redis:latest
+    #task queue dashboard - optional
+    rqdashboard:
+        image: eoranged/rq-dashboard
+        ports:
+            - "9181:9181"
+        environment:
+            - RQ_DASHBOARD_REDIS_URL=redis://redis:6379
+            - RQ_DASHBOARD_USERNAME=rq
+            - RQ_DASHBOARD_PASSWORD=changeme #change this password
+        depends_on: 
+            - redis
+    #minio is for storing images, also it displays images too on the results page
+    minio:
+        image: minio/minio:latest
+        volumes:
+            - minio-data:/data
+        #ports:
+        #    - "9000:9000"
+        environment:
+            MINIO_ROOT_USER: root
+            MINIO_ROOT_PASSWORD: changeme #change this password
+        command: server /data
+    #mongodb is where all the analysis/result data is stored
+    mongodb:
+        image: mongo
+        volumes:
+            - mongodb-data:/data/db
+    #mongoexpress can be used to view/modify data in mongodb - optional
+    mongoexpress:
+        image: mongo-express
+        ports:
+            - "8081:8081"
+        environment: 
+            - ME_CONFIG_MONGODB_SERVER=mongodb
+            - ME_CONFIG_BASICAUTH_USERNAME=mongoexpress
+            - ME_CONFIG_BASICAUTH_PASSWORD=changeme #change this password
+        depends_on: 
+            - mongodb
+    #this takes the tasks and actually does them, you can run multiple workers if you want
+    worker:
+        build: ./worker
+        deploy:
+            replicas: 2
+        image: worker
+        command: rqworker -u redis://redis:6379
+        environment:
+            - MINIO_SERVER=minio:9000
+            - MINIO_ACCESS_KEY=root
+            - MINIO_SECRET_KEY=changeme #change this, make sure it matches minio password
+            - MINIO_BUCKET=shots
+            - MONGODB_SERVER=mongodb://mongodb:27017/
+            - MONGODB_DATABASE=shotsdb
+            - MONGODB_COLLECTION=shotscollection
+        depends_on: #comment out or remove optional containers if you're not using them
+            - redis
+            - rqdashboard
+            - mongodb
+            - minio
+            - mongoexpress
+    #this is the main webui you interact with, it'll create tasks and let you view/search results
+    app:
+        build: ./app
+        image: app
+        command: gunicorn --workers 4 --bind 0.0.0.0:5000 app:app
+        #ports:
+        #    - "8000:5000"
+        environment:
+            - MINIO_SERVER=minio:9000
+            - MINIO_ACCESS_KEY=root
+            - MINIO_SECRET_KEY=changeme #change this, make sure it matches minio password
+            - MINIO_BUCKET=shots
+            - MONGODB_SERVER=mongodb://mongodb:27017/
+            - MONGODB_DATABASE=shotsdb
+            - MONGODB_COLLECTION=shotscollection
+            - REDIS_SERVER=redis
+        depends_on: #comment out or remove optional containers if you're not using them
+            - redis
+            - rqdashboard
+            - mongodb
+            - minio
+            - worker
+            - mongoexpress
+    #this is gonna be reverse proxy that takes the requests and passes them to app and minio
+    # check ./caddy/Caddyfile and change the password
+    caddy:
+        image: caddy
+        ports:
+            - "8888:8888"
+        volumes:
+            - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+        depends_on:
+            - app
+            - minio
+volumes:
+    #this is where the images are stored
+    minio-data:
+    #this is where the result data is stored
+    mongodb-data:

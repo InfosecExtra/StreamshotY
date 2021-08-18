@@ -1,0 +1,12 @@
+:8888
+
+reverse_proxy /shots/* minio:9000 { header_up -Authorization } #without removing auth header, minio thinks you're trying to login
+reverse_proxy * app:5000
+
+# change the password hash
+# download caddy and run ./caddy hash-password
+# or
+# find a bcrypt hash generator and generate a hash for your password then base64 encode it and paste it
+basicauth * {
+	admin JDJhJDA0JHMxNEIvVjhsZUUxSU5JaFROYTVaVWVFenQyL2ZyOFRpSTVhdmJ6T0V0MVhVMHQzV3I0R25H #changeme by default
+}

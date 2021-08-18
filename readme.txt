@@ -2,7 +2,6 @@ Still having threading errors…..working on it. Have threading set to 1 for now
 
 Install Littleshot link here: https://github.com/BoredHackerBlog/littleshot
 
-
 Compose Littleshot: docker-compose up -d --build caddy
 
 Open browser to the location specified littleshot_server
